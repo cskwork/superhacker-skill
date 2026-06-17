@@ -47,3 +47,19 @@ Porting all 754 upstream skills as discrete SKILL.md files would replicate the f
 **Offense always paired with detection and remediation:** No offensive output is produced without a corresponding defensive pairing — the detection signature and the remediation step. Rationale: a practitioner who can exploit but cannot explain how to detect or fix is incomplete; pairing also makes the output useful to the blue-team audience and reduces the marginal value of the output to a bad actor who already knows the technique.
 
 **Explicit out-of-scope refusals:** The skill explicitly refuses: producing ready-to-deploy malware, bypassing legal controls, targeting named real systems without confirmed authorization, and providing operational support for ongoing unauthorized access. These are stated at the routing layer, not deferred to the domain reference, so they cannot be bypassed by bucket selection.
+
+## Landing page (docs/index.html)
+
+Built with the superdesign skill (CREATE mode, web). Matches the sibling supergoal-skill
+dark-terminal family: tinted near-black base, neon green/cyan/amber accents (no purple), mono +
+sans type, floating console/stamp/signal cards, framework ticker, 13-card routing grid.
+
+- Verified by superdesign preflight gate: anti-slop PASS + WCAG contrast PASS (all text pairs >= AA,
+  lowest 6.59 vs need 4.5). No em-dash, no pure b/w, no AI-purple, no Inter, no bounce easing.
+- Bilingual EN/KO: English is the inline default (no-JS fallback); Korean lives in data-ko attributes,
+  swapped by a small script that auto-detects navigator.language (ko -> Korean) and persists the
+  EN/KO toggle in localStorage. Respects prefers-reduced-motion.
+- Served via GitHub Pages from /docs on main. Vault (.superdesign/) is gitignored.
+
+Rejected: full duplicated .en/.ko DOM blocks (heavier markup); chose data-ko + textContent swap so
+English stays the single gate-validated source and Korean is one attribute per node.

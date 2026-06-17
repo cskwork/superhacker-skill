@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>superhacker - one security objective, routed to the right domain</title>
+<meta name="description" content="superhacker is a single intent-routing security skill: scope under a mandatory authorization gate, classify the objective into one of 13 domains, execute least-impact, and report with reproducible evidence. English and Korean." />
+<meta property="og:title" content="superhacker - authorized-security routing" />
+<meta property="og:description" content="One objective in, the right domain routed, an evidence-backed report out. Authorization-gated, least-impact, offense paired with detection. English and Korean." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='9' fill='%2305070a'/%3E%3Cpath d='M32 9 52 17v13c0 13-9 21-20 25-11-4-20-12-20-25V17z' fill='none' stroke='%235cff9a' stroke-width='4.5' stroke-linejoin='round'/%3E%3Cpath d='M24 32l6 6 12-13' fill='none' stroke='%2364d8ff' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<style>
+  :root {
+    --bg: #05070a;
+    --ink: #f4f7fb;
+    --muted: #b3c0cf;
+    --soft: #8997a8;
+    --line: rgba(178, 221, 255, .15);
+    --line-strong: rgba(178, 221, 255, .3);
+    --panel: rgba(11, 17, 24, .82);
+    --panel-2: rgba(8, 12, 17, .94);
+    --panel-3: rgba(18, 26, 34, .7);
+    --green: #5cff9a;
+    --green-soft: rgba(92, 255, 154, .12);
+    --cyan: #64d8ff;
+    --cyan-soft: rgba(100, 216, 255, .12);
+    --amber: #ffbf47;
+    --amber-soft: rgba(255, 191, 71, .13);
+    --red: #ff6f6f;
+    --red-soft: rgba(255, 111, 111, .12);
+    --hair: rgba(216, 234, 255, .05);
+    --hair-2: rgba(216, 234, 255, .03);
+    --shadow: rgba(2, 5, 10, .58);
+    --mono: "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: "Avenir Next", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --radius: 9px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: var(--bg); }
+  body {
+    margin: 0;
+    min-width: 320px;
+    background:
+      linear-gradient(180deg, rgba(5, 7, 10, .6), var(--bg) 760px),
+      repeating-linear-gradient(90deg, var(--hair-2) 0 1px, transparent 1px 96px),
+      repeating-linear-gradient(0deg, var(--hair-2) 0 1px, transparent 1px 96px),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  html[lang="ko"] body { word-break: keep-all; }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: .2;
+    background-image:
+      linear-gradient(var(--hair) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hair) 1px, transparent 1px);
+    background-size: 26px 26px;
+    mask-image: linear-gradient(to bottom, #04060a, transparent 80%);
+  }
+
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: var(--cyan); }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  code, kbd, pre, .mono { font-family: var(--mono); }
+  b { color: var(--ink); }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+  }
+
+  /* gatebar */
+  .gatebar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    border-bottom: 1px solid var(--line);
+    background: rgba(5, 7, 10, .74);
+    backdrop-filter: blur(16px) saturate(130%);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .gatebar .wrap {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .status-led {
+    width: 9px; height: 9px;
+    border-radius: 99px;
+    background: var(--green);
+    box-shadow: 0 0 16px rgba(92, 255, 154, .85);
+    flex: 0 0 auto;
+    animation: ledPulse 1.9s ease-in-out infinite;
+  }
+  .gatebar .brand { color: var(--ink); font-weight: 700; letter-spacing: .02em; }
+  .gatebar .label { color: var(--soft); }
+  .gatebar .pass { color: var(--green); }
+  .gatebar .armed { color: var(--amber); }
+  .gatebar .spacer { margin-left: auto; }
+  .gatebar .hide-sm { display: inline; }
+  .lang-toggle {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--hair);
+    flex: 0 0 auto;
+  }
+  .lang-toggle button {
+    border: 0;
+    border-left: 1px solid var(--line);
+    padding: 7px 11px;
+    min-height: 32px;
+    color: var(--soft);
+    background: transparent;
+    font: 700 11px/1 var(--mono);
+    letter-spacing: .06em;
+    cursor: pointer;
+  }
+  .lang-toggle button:first-child { border-left: 0; }
+  .lang-toggle button[aria-pressed="true"] { background: var(--cyan-soft); color: var(--cyan); }
+  .gatebar .ghostlink {
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 12px;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .gatebar .ghostlink:hover { border-color: var(--line-strong); color: var(--cyan); }
+  .dim-sep { color: var(--soft); }
+
+  /* hero */
+  .hero {
+    position: relative;
+    padding: clamp(48px, 7vw, 86px) 0 52px;
+    display: grid;
+    align-items: center;
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    left: 50%; bottom: -1px;
+    width: 100vw; height: 180px;
+    transform: translateX(-50%);
+    z-index: 1;
+    background: linear-gradient(180deg, transparent, var(--bg) 80%);
+    pointer-events: none;
+  }
+  .hero-grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(330px, .8fr);
+    gap: clamp(28px, 5vw, 70px);
+    align-items: center;
+  }
+  .brandline {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 13px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(5, 7, 10, .6);
+    color: var(--green);
+    font: 700 12px/1 var(--mono);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .brandline::before {
+    content: "";
+    width: 30px; height: 1px;
+    background: linear-gradient(90deg, var(--green), transparent);
+  }
+  h1 {
+    margin: 22px 0 0;
+    font-size: clamp(52px, 10.5vw, 128px);
+    line-height: .86;
+    font-weight: 900;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  h1 .hk { color: var(--green); text-shadow: 0 0 42px rgba(92, 255, 154, .28); }
+  h1 .slash { color: var(--soft); font-weight: 800; }
+  .hero-sub {
+    max-width: 640px;
+    margin: 24px 0 0;
+    color: var(--ink);
+    font-size: clamp(20px, 2.6vw, 31px);
+    line-height: 1.14;
+    font-weight: 760;
+    text-wrap: balance;
+  }
+  .hero-copy { max-width: 60ch; margin: 16px 0 0; color: var(--muted); font-size: 17px; }
+  .cta-row { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 11px 17px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--hair);
+    color: var(--ink);
+    font: 760 13px/1 var(--mono);
+    cursor: pointer;
+    transition: transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    border-color: rgba(100, 216, 255, .6);
+    background: var(--cyan-soft);
+    color: var(--cyan);
+  }
+  .btn.primary {
+    color: #04130a;
+    border-color: rgba(92, 255, 154, .85);
+    background: linear-gradient(180deg, #8dffb9, var(--green));
+    box-shadow: 0 16px 50px rgba(92, 255, 154, .2);
+  }
+  .btn.primary:hover { color: #04130a; background: linear-gradient(180deg, #b5ffd0, var(--green)); }
+  .hero-meta {
+    margin-top: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    color: var(--soft);
+    font: 12px/1.4 var(--mono);
+  }
+  .hero-meta b { color: var(--muted); font-weight: 700; }
+
+  /* proof panel */
+  .proof-panel { position: relative; min-height: 420px; }
+  .console-card, .stamp-card, .signal-card {
+    position: absolute;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, rgba(15, 23, 30, .94), rgba(7, 11, 15, .96));
+    box-shadow: 0 26px 90px var(--shadow);
+    backdrop-filter: blur(12px);
+  }
+  .console-card {
+    inset: 26px 0 auto auto;
+    width: min(440px, 100%);
+    overflow: hidden;
+    transform: rotateZ(.5deg);
+    animation: floatA 6.5s ease-in-out infinite;
+  }
+  .console-top {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 13px;
+    border-bottom: 1px solid var(--line);
+    background: var(--hair);
+  }
+  .console-top i { width: 10px; height: 10px; border-radius: 99px; background: var(--soft); }
+  .console-top i:nth-child(1) { background: var(--red); }
+  .console-top i:nth-child(2) { background: var(--amber); }
+  .console-top i:nth-child(3) { background: var(--green); }
+  .console-top span { margin-left: auto; color: var(--soft); font: 12px var(--mono); }
+  .console-card pre {
+    margin: 0;
+    padding: 17px 18px;
+    color: #d7e6f2;
+    font: 13px/1.74 var(--mono);
+    white-space: pre-wrap;
+  }
+  .c-green { color: var(--green); }
+  .c-cyan { color: var(--cyan); }
+  .c-amber { color: var(--amber); }
+  .c-soft { color: var(--soft); }
+
+  .stamp-card {
+    right: 12px; top: -8px;
+    width: min(186px, 60vw);
+    padding: 14px;
+    transform: rotateZ(4deg);
+    animation: stampPulse 3.8s ease-in-out infinite;
+  }
+  .stamp-card h3, .signal-card h3 {
+    margin: 0 0 10px;
+    font: 760 11px/1 var(--mono);
+    color: var(--soft);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .stamp {
+    display: grid;
+    place-items: center;
+    min-height: 66px;
+    border: 1px dashed rgba(255, 191, 71, .6);
+    color: var(--amber);
+    background: var(--amber-soft);
+    border-radius: 6px;
+    font: 900 17px/1.1 var(--mono);
+    letter-spacing: .04em;
+    text-align: center;
+  }
+  .signal-card {
+    left: -6px; bottom: 14px;
+    width: min(288px, 78vw);
+    padding: 16px;
+    transform: rotateZ(-2.5deg);
+    animation: floatB 7.5s ease-in-out infinite;
+  }
+  .signal-row {
+    display: grid;
+    grid-template-columns: 78px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-top: 9px;
+    color: var(--muted);
+    font: 12px var(--mono);
+  }
+  .track {
+    height: 7px;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    overflow: hidden;
+    background: var(--hair);
+  }
+  .track span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--green);
+    transform-origin: left;
+    animation: fillTrack 3s ease-in-out infinite;
+  }
+  .signal-row:nth-of-type(3) .track span { background: var(--cyan); animation-delay: .3s; }
+  .signal-row:nth-of-type(4) .track span { background: var(--amber); animation-delay: .5s; }
+
+  /* ticker */
+  .ticker {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+    background: rgba(7, 11, 15, .84);
+  }
+  .ticker-track { display: flex; width: max-content; animation: tickerMove 34s linear infinite; }
+  .ticker span {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 22px;
+    color: var(--soft);
+    font: 12px var(--mono);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .ticker span::after { content: "//"; color: rgba(178, 221, 255, .3); }
+
+  /* sections */
+  section { position: relative; z-index: 2; padding: clamp(56px, 8vw, 96px) 0; }
+  .sec-head { max-width: 720px; }
+  .kicker { font: 700 12px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--cyan); }
+  h2 {
+    margin: 14px 0 0;
+    font-size: clamp(28px, 4.4vw, 46px);
+    line-height: 1.04;
+    font-weight: 860;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  .sec-copy { margin: 14px 0 0; color: var(--muted); font-size: 17px; max-width: 64ch; }
+
+  /* flow */
+  .flow { margin-top: 42px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .step {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel);
+    padding: 18px 16px;
+  }
+  .step .n { font: 700 11px/1 var(--mono); color: var(--green); letter-spacing: .08em; }
+  .step h4 { margin: 12px 0 6px; font-size: 16px; font-weight: 800; }
+  .step p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+  .step::after {
+    content: "->";
+    position: absolute;
+    right: -12px; top: 50%;
+    transform: translateY(-50%);
+    color: rgba(178, 221, 255, .4);
+    font: 12px var(--mono);
+    z-index: 3;
+  }
+  .flow .step:last-child::after { content: none; }
+
+  /* gate callout */
+  .gate-callout {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 22px;
+    border: 1px solid rgba(255, 191, 71, .34);
+    border-radius: 14px;
+    background:
+      radial-gradient(900px 280px at 0% 0%, var(--amber-soft), transparent 60%),
+      var(--panel-2);
+    padding: clamp(24px, 4vw, 38px);
+    align-items: center;
+  }
+  .gate-callout .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: 700 12px/1 var(--mono);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+  .gate-callout h3 { margin: 14px 0 10px; font-size: clamp(22px, 3vw, 30px); font-weight: 840; }
+  .gate-callout p { margin: 0; color: var(--muted); font-size: 15.5px; }
+  .gate-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+  .gate-list li {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    gap: 10px;
+    color: var(--muted);
+    font: 13px/1.5 var(--mono);
+  }
+  .gate-list li::before { content: ">"; color: var(--amber); }
+
+  /* routing grid */
+  .grid-meta {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    align-items: center;
+    font: 12px var(--mono);
+    color: var(--soft);
+  }
+  .legend { display: inline-flex; align-items: center; gap: 7px; }
+  .dot { width: 9px; height: 9px; border-radius: 3px; }
+  .dot.off { background: var(--amber); }
+  .dot.def { background: var(--green); }
+  .dot.both { background: var(--cyan); }
+
+  .routes {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+    gap: 13px;
+  }
+  .route {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel);
+    padding: 16px;
+    transition: transform .18s ease, border-color .18s ease, background .18s ease;
+  }
+  .route:hover { transform: translateY(-3px); border-color: var(--line-strong); background: var(--panel-3); }
+  .route-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .route .key { font: 760 13px/1 var(--mono); color: var(--cyan); }
+  .badge {
+    font: 700 10px/1 var(--mono);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 5px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .badge.off { color: var(--amber); background: var(--amber-soft); border-color: rgba(255, 191, 71, .3); }
+  .badge.def { color: var(--green); background: var(--green-soft); border-color: rgba(92, 255, 154, .3); }
+  .badge.both { color: var(--cyan); background: var(--cyan-soft); border-color: rgba(100, 216, 255, .3); }
+  .route h4 { margin: 12px 0 7px; font-size: 15.5px; font-weight: 800; line-height: 1.2; }
+  .route p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .route .fw { margin-top: 11px; color: var(--soft); font: 11px var(--mono); letter-spacing: .03em; }
+
+  /* principles */
+  .principles {
+    margin-top: 38px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 13px;
+  }
+  .principle {
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--green);
+    border-radius: var(--radius);
+    background: var(--panel);
+    padding: 17px 18px;
+  }
+  .principle.warn { border-left-color: var(--amber); }
+  .principle .pn { font: 700 11px/1 var(--mono); color: var(--soft); letter-spacing: .08em; }
+  .principle h4 { margin: 9px 0 6px; font-size: 16px; font-weight: 800; }
+  .principle p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.52; }
+
+  /* stat band */
+  .band {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--line);
+  }
+  .stat { background: var(--panel-2); padding: 24px 20px; text-align: center; }
+  .stat .num { font: 900 clamp(30px, 5vw, 46px)/1 var(--mono); color: var(--ink); }
+  .stat .num.g { color: var(--green); }
+  .stat .num.c { color: var(--cyan); }
+  .stat .lbl { margin-top: 8px; color: var(--soft); font: 12px var(--mono); letter-spacing: .05em; }
+
+  /* footer */
+  footer {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--line);
+    background: rgba(7, 11, 15, .8);
+    padding: 48px 0 56px;
+  }
+  .foot-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 28px; align-items: start; }
+  .foot-grid h4 { margin: 0 0 8px; font: 760 13px/1 var(--mono); color: var(--ink); letter-spacing: .02em; }
+  .foot-grid p { margin: 0 0 8px; color: var(--soft); font-size: 13.5px; line-height: 1.55; max-width: 60ch; }
+  .foot-links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .foot-links a {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 13px;
+    color: var(--muted);
+    font: 12px var(--mono);
+  }
+  .foot-links a:hover { border-color: var(--line-strong); color: var(--cyan); }
+  .disclaimer {
+    margin-top: 26px;
+    padding: 14px 16px;
+    border: 1px solid var(--red-soft);
+    border-radius: var(--radius);
+    background: var(--red-soft);
+    color: var(--muted);
+    font: 12px/1.6 var(--mono);
+  }
+  .disclaimer b { color: var(--red); }
+
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @keyframes ledPulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+  @keyframes floatA { 0%, 100% { transform: rotateZ(.5deg) translateY(0); } 50% { transform: rotateZ(.5deg) translateY(-12px); } }
+  @keyframes floatB { 0%, 100% { transform: rotateZ(-2.5deg) translateY(0); } 50% { transform: rotateZ(-2.5deg) translateY(9px); } }
+  @keyframes stampPulse { 0%, 100% { transform: rotateZ(4deg) scale(1); } 50% { transform: rotateZ(4deg) scale(1.03); } }
+  @keyframes fillTrack { 0% { transform: scaleX(.12); } 60% { transform: scaleX(.92); } 100% { transform: scaleX(.12); } }
+  @keyframes tickerMove { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  @media (max-width: 880px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .proof-panel { min-height: 380px; margin-top: 14px; }
+    .flow { grid-template-columns: 1fr 1fr; }
+    .flow .step::after { content: none; }
+    .gate-callout { grid-template-columns: 1fr; }
+    .foot-grid { grid-template-columns: 1fr; }
+    .gatebar .hide-sm { display: none; }
+  }
+  @media (max-width: 540px) { .flow { grid-template-columns: 1fr; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="gatebar">
+  <div class="wrap">
+    <span class="status-led" aria-hidden="true"></span>
+    <span class="brand">superhacker</span>
+    <span class="hide-sm"><span class="label">preflight</span> <span class="pass">PASS</span> <span class="dim-sep">/</span> <span class="label">contract</span> <span class="pass">87/87</span> <span class="dim-sep">/</span></span>
+    <span class="label">auth gate</span> <span class="armed">ARMED</span>
+    <span class="spacer"></span>
+    <div class="lang-toggle" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="ko" aria-pressed="false">KO</button>
+    </div>
+    <a class="ghostlink" href="https://github.com/cskwork/superhacker-skill">GitHub</a>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="brandline" data-ko="권한 기반 보안 라우팅">Authorized-security routing</span>
+      <h1><span class="slash">/</span>super<span class="hk">hacker</span></h1>
+      <p class="hero-sub" data-ko="하나의 보안 목표를, 그 일을 담당하는 단 하나의 도메인으로 라우팅합니다.">One security objective, routed to the one domain that owns it.</p>
+      <p class="hero-copy" data-ko="의도 기반 단일 라우팅 스킬입니다. 필수 인가 게이트 아래에서 범위를 정하고, 작업을 13개 보안 도메인 중 하나로 분류하며, 최소 영향으로 실행하고, 재현 가능한 증거로 보고합니다. 공격 기법은 항상 탐지와 완화 가이드와 함께 제공됩니다.">A single intent-routing skill: scope under a mandatory authorization gate, classify the work into 1 of 13 security domains, execute least-impact, and report with reproducible evidence. Offense is always paired with detection and remediation.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="https://github.com/cskwork/superhacker-skill" data-ko="GitHub에서 보기">View on GitHub</a>
+        <a class="btn" href="#routing" data-ko="13개 도메인 보기">See the 13 domains</a>
+        <a class="btn" href="#gate" data-ko="인가 게이트">Authorization gate</a>
+      </div>
+      <div class="hero-meta">
+        <span><b data-ko="유형:">Type:</b> <span data-ko="에이전트 스킬 (SKILL.md)">agent skill (SKILL.md)</span></span>
+        <span><b data-ko="통합:">Folds:</b> <span data-ko="26개 도메인을 13개 버킷으로">26 domains into 13 buckets</span></span>
+        <span><b data-ko="용도:">Use:</b> <span data-ko="권한 있는 테스트, CTF, 실습, 방어">authorized testing, CTF, lab, defense</span></span>
+      </div>
+    </div>
+
+    <div class="proof-panel" aria-hidden="true">
+      <div class="signal-card">
+        <h3>Coverage signal</h3>
+        <div class="signal-row"><span>frameworks</span><span class="track"><span></span></span><span>5</span></div>
+        <div class="signal-row"><span>domains</span><span class="track"><span></span></span><span>13</span></div>
+        <div class="signal-row"><span>loaded now</span><span class="track"><span></span></span><span>1</span></div>
+      </div>
+      <div class="console-card">
+        <div class="console-top"><i></i><i></i><i></i><span>superhacker - route</span></div>
+<pre><span class="c-soft">$</span> superhacker <span class="c-cyan">"pentest the staging web app"</span>
+
+<span class="c-soft">scope   </span> client, RoE signed
+<span class="c-soft">in-scope</span> staging.* only
+<span class="c-soft">posture </span> <span class="c-amber">offensive</span>
+<span class="c-green">route   </span> -> web-api  <span class="c-soft">[1 of 13]</span>
+<span class="c-soft">load    </span> reference/web-api.md
+<span class="c-soft">gate    </span> authorization <span class="c-green">ARMED</span>
+
+<span class="c-green">ready.</span> passive -> active, in-scope.</pre>
+      </div>
+      <div class="stamp-card">
+        <h3>Hard gate</h3>
+        <div class="stamp">RoE<br>REQUIRED</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span>MITRE ATT&amp;CK</span><span>OWASP Top 10</span><span>NIST CSF 2.0</span><span>CIS Benchmarks</span><span>MITRE ATLAS</span><span>D3FEND</span><span>recon</span><span>web-api</span><span>redteam</span><span>forensics</span><span>soc-detect</span><span>threat-intel</span>
+    <span>MITRE ATT&amp;CK</span><span>OWASP Top 10</span><span>NIST CSF 2.0</span><span>CIS Benchmarks</span><span>MITRE ATLAS</span><span>D3FEND</span><span>recon</span><span>web-api</span><span>redteam</span><span>forensics</span><span>soc-detect</span><span>threat-intel</span>
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker" data-ko="엔게이지먼트 루프">Engagement loop</span>
+      <h2 data-ko="모든 작전에 적용되는 다섯 단계.">Five steps, every engagement.</h2>
+      <p class="sec-copy" data-ko="공격이든 방어든 조사든 동일한 절제된 흐름을 따릅니다. 목표는 범위 설정에서 시작하며, 인가 없이는 한 발도 나아가지 않습니다.">The same disciplined arc whether you are attacking, defending, or investigating. The objective enters at Scope and never moves without authorization.</p>
+    </div>
+    <div class="flow reveal">
+      <div class="step"><span class="n">01</span><h4 data-ko="범위 설정">Scope</h4><p data-ko="목표, 인가 상태, 자세를 한 줄로 기술합니다. 능동적 작업에 인가가 없으면 즉시 중단합니다.">State objective, authorization status, and posture in one line. Hard stop if active work lacks authorization.</p></div>
+      <div class="step"><span class="n">02</span><h4 data-ko="정의와 라우팅">Frame &amp; route</h4><p data-ko="수동적으로 맥락을 모으고, 의도를 분류해, 라우팅된 단 하나의 도메인 레퍼런스만 로드합니다.">Gather context passively, classify the intent, and load only the one routed domain reference.</p></div>
+      <div class="step"><span class="n">03</span><h4 data-ko="실행">Execute</h4><p data-ko="수동에서 능동 순서로, 범위 안에서만 도메인 워크플로를 수행하며 증거를 수집합니다.">Run the domain workflow passive to active, in-scope only, capturing evidence as you go.</p></div>
+      <div class="step"><span class="n">04</span><h4 data-ko="검증">Verify</h4><p data-ko="모든 발견을 명령과 출력으로 재현하고, 심각도를 매기며, 거짓 양성을 제거합니다.">Reproduce every finding with command and output, rate severity, drop false positives.</p></div>
+      <div class="step"><span class="n">05</span><h4 data-ko="보고">Report</h4><p data-ko="심각도 순으로 정리한 발견과 재현, 완화, 탐지 가이드를 제공합니다.">Severity-ordered findings with repro, remediation, and detection guidance.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="gate">
+  <div class="wrap">
+    <div class="gate-callout reveal">
+      <div>
+        <span class="tag" data-ko="안전 축">Safety spine</span>
+        <h3 data-ko="인가는 체크박스가 아니라 강제 중단 지점입니다.">Authorization is a hard stop, not a checkbox.</h3>
+        <p data-ko="게이트는 모든 작전의 범위 설정 단계에서 로드됩니다. 기본값은 수동, 읽기 전용입니다. 범위 안임을 증명할 수 없는 대상에 대한 능동 스캔, 익스플로잇, 자격 증명 공격, 지속성 확보는 스킬이 거부하고 먼저 묻습니다.">The gate loads at Scope on every engagement. Passive and read-only is the default. Active scanning, exploitation, credential attacks, or persistence against anything you cannot prove is in-scope: the skill refuses and asks first.</p>
+      </div>
+      <ul class="gate-list">
+        <li data-ko="고객 작업에는 서면 RoE 또는 범위 정의">Written RoE or scope for client work</li>
+        <li data-ko="소유 시스템, 실습 환경, CTF는 자체 인가이며 한 줄로 명시">Owned systems, lab, and CTF are self-authorizing, stated in one line</li>
+        <li data-ko="최소 영향 순서: 능동보다 수동 먼저, 파괴적 작업보다 비파괴적 작업 먼저">Least-impact ordering: passive before active, non-destructive before destructive</li>
+        <li data-ko="DoS, 대량 표적화, 데이터 파괴, 범위 초과 지속성은 금지">Never DoS, mass-target, destroy data, or persist beyond scope</li>
+        <li data-ko="공격은 항상 탐지 및 완화와 함께">Offense always paired with detection and remediation</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="routing">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker" data-ko="도메인 라우팅">Domain routing</span>
+      <h2 data-ko="하나의 의도는 하나의 도메인으로 귀결됩니다.">One intent resolves to one domain.</h2>
+      <p class="sec-copy" data-ko="26개 도메인과 754개 스킬의 상위 라이브러리를 13개 라우팅 버킷으로 통합했습니다. 라우터가 목표를 분류해 필요한 레퍼런스 하나만 즉시 로드하므로, 컨텍스트는 작게, 워크플로는 집중된 상태로 유지됩니다.">An upstream library of 26 domains and 754 skills, folded into 13 routing buckets. The router classifies the objective and loads exactly one reference on demand, so context stays small and the workflow stays focused.</p>
+    </div>
+    <div class="grid-meta reveal">
+      <span class="legend"><span class="dot off"></span> <span data-ko="공격형 (인가 게이트 적용)">offensive (authorization-gated)</span></span>
+      <span class="legend"><span class="dot def"></span> <span data-ko="방어형">defensive</span></span>
+      <span class="legend"><span class="dot both"></span> <span data-ko="양쪽 (수동 우선)">both (passive-first)</span></span>
+    </div>
+    <div class="routes reveal">
+      <div class="route"><div class="route-top"><span class="key">recon</span><span class="badge off" data-ko="공격형">offensive</span></div><h4 data-ko="정찰 및 취약점 발견">Reconnaissance &amp; Vulnerability Discovery</h4><p data-ko="OSINT, 스캐닝, 공격 표면 열거, CVSS와 악용 가능성 기반 취약점 분류.">OSINT, scanning, attack-surface enumeration, vuln triage by CVSS and exploitability.</p><div class="fw">ATT&amp;CK TA0043 / CVSS</div></div>
+      <div class="route"><div class="route-top"><span class="key">web-api</span><span class="badge off" data-ko="공격형">offensive</span></div><h4 data-ko="웹 및 API 익스플로잇">Web &amp; API Exploitation</h4><p data-ko="OWASP Top 10, SQLi / XSS / SSRF / IDOR / 인증 우회, GraphQL과 REST, WAF 동작.">OWASP Top 10, SQLi / XSS / SSRF / IDOR / auth bypass, GraphQL and REST, WAF behavior.</p><div class="fw">OWASP Top 10 / API Top 10</div></div>
+      <div class="route"><div class="route-top"><span class="key">network</span><span class="badge both" data-ko="양쪽">both</span></div><h4 data-ko="네트워크 및 OT/ICS 보안">Network &amp; OT/ICS Security</h4><p data-ko="분할, 트래픽 분석, IDS/IPS, OT/ICS 프로토콜. ICS는 수동 우선.">Segmentation, traffic analysis, IDS/IPS, OT/ICS protocols. Passive-first for ICS.</p><div class="fw">ATT&amp;CK ICS / IEC 62443</div></div>
+      <div class="route"><div class="route-top"><span class="key">redteam</span><span class="badge off" data-ko="공격형">offensive</span></div><h4 data-ko="레드팀 및 공격자 에뮬레이션">Red Team &amp; Adversary Emulation</h4><p data-ko="AD 공격 경로, 권한 상승, 측면 이동, 피싱 모의, 퍼플팀 인계.">AD attack paths, privilege escalation, lateral movement, phishing sim, purple-team handoff.</p><div class="fw">ATT&amp;CK kill chain / ATLAS</div></div>
+      <div class="route"><div class="route-top"><span class="key">cloud-container</span><span class="badge both" data-ko="양쪽">both</span></div><h4 data-ko="클라우드 및 컨테이너 보안">Cloud &amp; Container Security</h4><p data-ko="AWS/Azure/GCP 강화, CSPM, 쿠버네티스 RBAC, 이미지 스캔, 런타임 탐지.">AWS/Azure/GCP hardening, CSPM, Kubernetes RBAC, image scanning, runtime detection.</p><div class="fw">CIS Benchmarks / ATT&amp;CK Cloud</div></div>
+      <div class="route"><div class="route-top"><span class="key">identity</span><span class="badge def" data-ko="방어형">defensive</span></div><h4 data-ko="아이덴티티, 접근 및 제로 트러스트">Identity, Access &amp; Zero Trust</h4><p data-ko="IAM 검토, 최소 권한, PAM, MFA/SSO, 제로 트러스트 분할 설계.">IAM review, least-privilege, PAM, MFA/SSO, zero-trust segmentation design.</p><div class="fw">NIST 800-207 / CISA ZTMM</div></div>
+      <div class="route"><div class="route-top"><span class="key">appsec</span><span class="badge def" data-ko="방어형">defensive</span></div><h4 data-ko="앱보안, DevSecOps 및 암호화">AppSec, DevSecOps &amp; Cryptography</h4><p data-ko="보안 SDLC, SAST/SCA/시크릿 게이트, IaC 감사, TLS와 키 관리, 서명.">Secure SDLC, SAST/SCA/secret gates, IaC audit, TLS and key management, signing.</p><div class="fw">NIST SSDF / SLSA / SAMM</div></div>
+      <div class="route"><div class="route-top"><span class="key">soc-detect</span><span class="badge def" data-ko="방어형">defensive</span></div><h4 data-ko="SOC, 탐지 및 위협 헌팅">SOC, Detection &amp; Threat Hunting</h4><p data-ko="SIEM, 로그 분석, Sigma/YARA 규칙, 가설 기반 헌팅, LOTL 분석.">SIEM, log analysis, Sigma/YARA rules, hypothesis-driven hunts, LOTL analytics.</p><div class="fw">ATT&amp;CK / D3FEND / CSF Detect</div></div>
+      <div class="route"><div class="route-top"><span class="key">threat-intel</span><span class="badge def" data-ko="방어형">defensive</span></div><h4 data-ko="위협 인텔리전스">Threat Intelligence</h4><p data-ko="STIX/TAXII, MISP, 피드 프로파일링, 공격자 및 캠페인 귀속, 인텔 요구사항.">STIX/TAXII, MISP, feed profiling, actor and campaign attribution, intel requirements.</p><div class="fw">Diamond Model / Kill Chain</div></div>
+      <div class="route"><div class="route-top"><span class="key">incident-response</span><span class="badge def" data-ko="방어형">defensive</span></div><h4 data-ko="사고 대응, 랜섬웨어 및 피싱">Incident Response, Ransomware &amp; Phishing</h4><p data-ko="분류, 격리, 근절, 복구, BEC 및 피싱 대응.">Triage, containment, eradication, recovery, BEC and phishing response.</p><div class="fw">NIST 800-61 / SANS PICERL</div></div>
+      <div class="route"><div class="route-top"><span class="key">forensics</span><span class="badge def" data-ko="방어형">defensive</span></div><h4 data-ko="디지털 포렌식 및 악성코드 분석">Digital Forensics &amp; Malware Analysis</h4><p data-ko="디스크/메모리 이미징, 타임라인 재구성, 정적 및 동적 악성코드 분석.">Disk/memory imaging, timeline reconstruction, static and dynamic malware analysis.</p><div class="fw">NIST 800-86 / Volatility3</div></div>
+      <div class="route"><div class="route-top"><span class="key">mobile</span><span class="badge both" data-ko="양쪽">both</span></div><h4 data-ko="모바일 보안">Mobile Security</h4><p data-ko="안드로이드/iOS 앱 분석, 모바일 모의해킹, MASVS 통제, MDM 포렌식.">Android/iOS app analysis, mobile pentest, MASVS controls, MDM forensics.</p><div class="fw">OWASP MASVS / MASTG</div></div>
+      <div class="route"><div class="route-top"><span class="key">govern</span><span class="badge def" data-ko="방어형">defensive</span></div><h4 data-ko="컴플라이언스, 거버넌스 및 기만">Compliance, Governance &amp; Deception</h4><p data-ko="CIS / SOC 2 / ISO 27001 매핑, 격차 평가, 허니토큰과 카나리.">CIS / SOC 2 / ISO 27001 mapping, gap assessment, honeytokens and canaries.</p><div class="fw">NIST CSF 2.0 / ISO 27001</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="principles">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker" data-ko="핵심 원칙">Core principles</span>
+      <h2 data-ko="라우팅을 떠받치는 원칙.">The discipline behind the routing.</h2>
+    </div>
+    <div class="principles reveal">
+      <div class="principle warn"><span class="pn">01</span><h4 data-ko="인가 우선">Authorization-first</h4><p data-ko="능동적이거나 침습적인 행동 전에 서면 범위를 확인합니다. 기본은 수동입니다. 범위 안임을 증명할 수 없으면 거부하고 묻습니다.">Confirm written scope before any active or intrusive action. Default to passive. Refuse and ask when you cannot prove in-scope.</p></div>
+      <div class="principle warn"><span class="pn">02</span><h4 data-ko="최소 영향">Least impact</h4><p data-ko="수동에서 능동, 비파괴에서 파괴 순으로 행동합니다. DoS, 대량 표적화, 합의 범위를 넘는 지속성은 금지합니다.">Order actions passive to active, non-destructive to destructive. Never DoS, mass-target, or persist beyond the agreed scope.</p></div>
+      <div class="principle"><span class="pn">03</span><h4 data-ko="증거 기반">Evidence-based</h4><p data-ko="모든 발견은 재현 가능한 증거로 뒷받침됩니다. 그럴듯하지만 검증되지 않은 발견이 가장 큰 실패 요인이므로, 제거하거나 강등합니다.">Every finding is backed by reproducible evidence. A plausible-but-unverified finding is the failure mode, so drop or downgrade it.</p></div>
+      <div class="principle"><span class="pn">04</span><h4 data-ko="방어 목적">Defensive purpose</h4><p data-ko="공격 기법은 방어를 개선하기 위해 존재합니다. 익스플로잇 발견에는 항상 탐지와 완화를 함께 제공합니다.">Offensive technique exists to improve defense. Always deliver detection and remediation alongside any exploit finding.</p></div>
+      <div class="principle"><span class="pn">05</span><h4 data-ko="정직한 보고">Faithful reporting</h4><p data-ko="부풀리지 않은 정확한 심각도, 명확한 재현, 그리고 미검증 항목 섹션을 명시해 침묵이 안전으로 오해되지 않게 합니다.">Accurate severity with no inflation, clear repro, and an explicit not-tested section so silence is never read as safe.</p></div>
+      <div class="principle"><span class="pn">06</span><h4 data-ko="한 번에 하나의 레퍼런스">One reference at a time</h4><p data-ko="라우터는 분류한 도메인만 로드합니다. 컨텍스트는 작게, 절차는 집중되게, 산출물은 깔끔하게 유지됩니다.">The router loads only the domain it classified. Context stays small, the procedure stays focused, the deliverable stays clean.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="numbers">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker" data-ko="숫자로 보기">By the numbers</span>
+      <h2 data-ko="의도적으로 단순하게.">Simplified on purpose.</h2>
+      <p class="sec-copy" data-ko="핵심은 설치할 스킬을 잔뜩 늘리는 것이 아니라, 라우팅하는 단 하나의 스킬입니다. 폭은 레퍼런스에 담기고, 진입점은 하나로 유지됩니다.">The whole point is one skill that routes, not a sprawl of skills to install. The breadth lives in the references; the entry point stays single.</p>
+    </div>
+    <div class="band reveal">
+      <div class="stat"><div class="num g">1</div><div class="lbl" data-ko="로드된 스킬">skill loaded</div></div>
+      <div class="stat"><div class="num c">13</div><div class="lbl" data-ko="라우팅 버킷">routing buckets</div></div>
+      <div class="stat"><div class="num">26</div><div class="lbl" data-ko="통합된 도메인">domains folded</div></div>
+      <div class="stat"><div class="num">754</div><div class="lbl" data-ko="상위 스킬">upstream skills</div></div>
+      <div class="stat"><div class="num g">87</div><div class="lbl" data-ko="계약 검사">contract checks</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h4>superhacker</h4>
+        <p data-ko="supergoal의 자매 격인, 의도 기반 단일 보안 라우팅 스킬입니다. supergoal SKILL.md 패턴을 따릅니다: 하나의 라우터, 다수의 온디맨드 레퍼런스. 권한 있는 모의해킹, CTF, 실습, 보안 연구, 방어 운영을 위해 만들어졌습니다.">A single intent-routing security skill, sibling to supergoal. Models the supergoal SKILL.md pattern: one router, many on-demand references. Built for authorized pentesting, CTF, lab work, security research, and defensive operations.</p>
+        <p class="c-soft" data-ko="라우팅 분류 체계와 레퍼런스는 상위 커뮤니티 라이브러리 mukul975/Anthropic-Cybersecurity-Skills (Apache-2.0)에서 영감을 받았으며, 이는 Anthropic PBC와 무관합니다.">Routing taxonomy and references are inspired by the upstream community library mukul975/Anthropic-Cybersecurity-Skills (Apache-2.0), which is not affiliated with Anthropic PBC.</p>
+      </div>
+      <div>
+        <h4 data-ko="링크">Links</h4>
+        <div class="foot-links">
+          <a href="https://github.com/cskwork/superhacker-skill" data-ko="저장소">Repository</a>
+          <a href="https://github.com/cskwork/superhacker-skill/blob/main/SKILL.md">SKILL.md</a>
+          <a href="https://github.com/mukul975/Anthropic-Cybersecurity-Skills" data-ko="상위 라이브러리">Upstream library</a>
+        </div>
+      </div>
+    </div>
+    <div class="disclaimer">
+      <b data-ko="책임 있는 사용.">Responsible use.</b> <span data-ko="이 스킬은 무기화된 페이로드가 아니라 방법론, 도구 이름, 검증 절차만 설명합니다. 소유했거나 명시적으로 테스트 권한을 받은 시스템에서만 사용하세요. 범위를 벗어나거나 악의적인 사용(대량 표적화, 크라임웨어, 실제 악성코드 배포)은 설계상 거부됩니다.">This skill describes methodology, tool names, and verification only, never weaponized payloads. Use it solely on systems you own or are explicitly authorized to test. Out-of-scope or malicious use (mass targeting, crimeware, real-world malware deployment) is refused by design.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Bilingual (EN/KO): English is the inline default; data-ko holds the Korean.
+  // Cache the original English once, then swap textContent. Auto-detect from browser, allow toggle.
+  (function () {
+    var nodes = document.querySelectorAll('[data-ko]');
+    nodes.forEach(function (el) { el.setAttribute('data-en', el.textContent); });
+    var buttons = document.querySelectorAll('.lang-toggle button');
+
+    function apply(lang) {
+      if (lang !== 'ko') lang = 'en';
+      document.documentElement.lang = lang;
+      nodes.forEach(function (el) {
+        var t = el.getAttribute('data-' + lang);
+        if (t !== null) el.textContent = t;
+      });
+      buttons.forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-lang') === lang ? 'true' : 'false');
+      });
+      try { localStorage.setItem('shlang', lang); } catch (e) {}
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem('shlang'); } catch (e) {}
+    var nav = (navigator.language || 'en').toLowerCase();
+    var initial = saved || (nav.indexOf('ko') === 0 ? 'ko' : 'en');
+    apply(initial);
+
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { apply(b.getAttribute('data-lang')); });
+    });
+  })();
+
+  // Scroll-reveal via IntersectionObserver (no scroll listener).
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(function (el) { el.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
+    els.forEach(function (el) { io.observe(el); });
+  })();
+</script>
+</body>
+</html>

@@ -2,6 +2,8 @@
 
 A single-intent-routing security skill for Claude Code and compatible agents. One `SKILL.md` accepts a security objective and routes it to exactly one of 13 domain reference files, each consolidating several of the 26 upstream domains. The design mirrors the supergoal-skill routing pattern: minimal ceremony, one load per invocation, no broad context dumping.
 
+**Live page (EN/KO):** https://cskwork.github.io/superhacker-skill/
+
 ---
 
 ## Authorized use only
