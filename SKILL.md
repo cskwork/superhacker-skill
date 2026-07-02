@@ -1,11 +1,11 @@
 ---
 name: superhacker
-description: Authorized-security routing - scope, classify, and execute security work with least-impact methodology and evidence-backed reporting. Use for "/superhacker", "superhacker", "pentest X", "security audit / find vulnerabilities", "red team", "harden cloud/k8s", "review IAM / zero trust", "detection rules / threat hunt", "incident response", "analyze this malware / forensics", "threat intel", "mobile app security", "compliance / CIS / SOC2", "CTF".
+description: Authorized-security router for scoped security work. Use for /superhacker, pentest/security audit, vulnerability search or clue triage, red team, cloud/IAM hardening, detection/IR/forensics/threat intel, mobile/compliance, or CTF.
 ---
 
 # /superhacker - authorized-security routing
 
-One security objective -> route to the right domain -> least-impact execution -> evidence-backed report.
+One security objective -> route to the right reference -> least-impact execution -> evidence-backed report.
 
 ## Core principles
 
@@ -30,18 +30,18 @@ One security objective -> route to the right domain -> least-impact execution ->
 1. **Scope.** One line: objective + authorization status (RoE / in-scope targets / allowed actions /
    owned-lab-CTF-vs-client) + posture (offensive / defensive / IR / forensic). Hard stop if active work
    lacks authorization.
-2. **Frame & route.** Gather context passively; classify the intent into a domain via the routing table;
+2. **Frame & route.** Gather context passively; classify the intent into a reference via the routing table;
    load ONLY that reference file.
-3. **Execute (least-impact).** Run the domain workflow passive->active, in-scope only; capture evidence
+3. **Execute (least-impact).** Run the routed workflow passive->active, in-scope only; capture evidence
    as you go.
 4. **Verify.** Reproduce every finding (command+output / artifact); rate severity; drop false positives.
    No unverified claims.
 5. **Report.** Deliverable = severity-ordered findings report with repro + remediation + detection
    guidance (`templates/report-template.md`).
 
-## Domain routing (classify the intent, state the domain in one line)
+## Routing table (classify the intent, state the route in one line)
 
-| Signal in the objective | Domain | Route |
+| Signal in the objective | Selected route | Reference |
 |---|---|---|
 | scope/footprint a target, OSINT, port/service scan, enumerate attack surface, vuln scan + triage, asset discovery | recon (Reconnaissance & Vulnerability Discovery) | `reference/recon.md` |
 | test a web app or API, OWASP Top 10, SQLi/XSS/SSRF/IDOR/auth-bypass, GraphQL/REST, WAF behavior | web-api (Web & API Exploitation) | `reference/web-api.md` |
@@ -56,8 +56,9 @@ One security objective -> route to the right domain -> least-impact execution ->
 | disk/memory imaging, timeline reconstruction, artifact analysis, static/dynamic malware analysis, reverse engineering, sandboxing | forensics (Digital Forensics & Malware Analysis) | `reference/forensics.md` |
 | Android/iOS app analysis, mobile pentest, MASVS controls, MDM forensics | mobile (Mobile Security) | `reference/mobile.md` |
 | compliance mapping (CIS, SOC 2, ISO 27001, PCI), policy/governance, risk, audit evidence, deception (honeytokens/canaries) | govern (Compliance, Governance & Deception) | `reference/govern.md` |
+| find vulnerability clues/hints, bug bounty leads, source-aware triage, attack path ideas, suspicious routes/sinks/configs before validation | clue-hunt (Vulnerability Clue Discovery) | `reference/clue-hunt.md` |
 
-## Reference map (load only the routed domain)
+## Reference map (load only the routed reference)
 
 | Read this | When |
 |---|---|
@@ -75,13 +76,15 @@ One security objective -> route to the right domain -> least-impact execution ->
 | `reference/forensics.md` | Disk/memory imaging, malware analysis |
 | `reference/mobile.md` | Android/iOS pentest, MASVS |
 | `reference/govern.md` | Compliance mapping, governance, deception |
+| `reference/clue-hunt.md` | Vulnerability clues, hypothesis ranking, validation queue |
 
 ## Final checklist (before claiming done)
 
 - [ ] Authorization confirmed/stated (RoE / owned-lab / CTF)
-- [ ] Domain routed and only that reference loaded
+- [ ] Route selected and only that reference loaded
 - [ ] Least-impact ordering held (passive before active, non-destructive before destructive)
 - [ ] Every finding reproduced with evidence (command + output / artifact hash / screenshot)
+- [ ] Clues, hypotheses, and findings are labeled separately; no unverified clue is reported as a vulnerability
 - [ ] Severity not inflated; "not tested" section explicitly stated
 - [ ] Offensive findings paired with detection + remediation guidance
 - [ ] Report delivered via `templates/report-template.md`

@@ -42,7 +42,7 @@ require_text  "SKILL.md mentions Authorization gate"   "SKILL.md" "Authorization
 require_text  "SKILL.md mentions Engagement loop"      "SKILL.md" "Engagement loop"
 
 # SKILL.md routing references every domain reference file.
-DOMAINS="recon web-api network redteam cloud-container identity appsec soc-detect threat-intel incident-response forensics mobile govern"
+DOMAINS="recon web-api network redteam cloud-container identity appsec soc-detect threat-intel incident-response forensics mobile govern clue-hunt"
 for domain in $DOMAINS; do
   require_text "SKILL.md routes to reference/$domain.md" "SKILL.md" "reference/$domain.md"
 done
@@ -58,6 +58,10 @@ require_file  "reference/authorization.md exists" "reference/authorization.md"
 require_file  "templates/report-template.md exists"        "templates/report-template.md"
 require_file  "templates/scope-roe-template.md exists"     "templates/scope-roe-template.md"
 require_file  "templates/finding-template.md exists"       "templates/finding-template.md"
+require_file  "templates/clue-ledger-template.md exists"   "templates/clue-ledger-template.md"
+require_text  "SKILL.md separates clues from findings"     "SKILL.md" "Clues, hypotheses, and findings"
+require_text  "clue ledger has validation states"          "templates/clue-ledger-template.md" "ready-for-authorized-validation"
+require_text  "clue-hunt gates active validation"          "reference/clue-hunt.md" "If active authorization is absent, stop at a validation plan"
 
 # Every domain reference file contains the four mandatory section headings.
 ALL_DOMAINS="$DOMAINS"

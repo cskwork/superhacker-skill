@@ -1,6 +1,6 @@
 # superhacker-skill
 
-A single-intent-routing security skill for Claude Code and compatible agents. One `SKILL.md` accepts a security objective and routes it to exactly one of 13 domain reference files, each consolidating several of the 26 upstream domains. The design mirrors the supergoal-skill routing pattern: minimal ceremony, one load per invocation, no broad context dumping.
+A single-intent-routing security skill for Claude Code and compatible agents. One `SKILL.md` accepts a security objective and routes it to exactly one of 14 reference files: 13 security domain buckets plus one passive-first clue-hunt route. The design mirrors the supergoal-skill routing pattern: minimal ceremony, one load per invocation, no broad context dumping.
 
 **Live page (EN/KO):** https://cskwork.github.io/superhacker-skill/
 
@@ -12,7 +12,7 @@ This skill is for authorized penetration testing, CTF competitions, isolated lab
 
 ---
 
-## Domains
+## Routed References
 
 | Key | Title | Posture | Covers |
 |---|---|---|---|
@@ -29,15 +29,16 @@ This skill is for authorized penetration testing, CTF competitions, isolated lab
 | forensics | Digital Forensics & Malware Analysis | defensive | Digital Forensics, Malware Analysis |
 | mobile | Mobile Security | both | Mobile Security |
 | govern | Compliance, Governance & Deception | defensive | Compliance & Governance, Deception Technology |
+| clue-hunt | Vulnerability Clue Discovery | passive-first | Source-aware triage, suspicious signals, hypothesis ranking, validation queue |
 
 ---
 
 ## How routing works
 
 1. You provide a security objective (e.g., "enumerate subdomains", "write a YARA rule", "harden IAM policies").
-2. `SKILL.md` matches the intent against the routing table and selects exactly one domain key.
+2. `SKILL.md` matches the intent against the routing table and selects exactly one route key.
 3. The corresponding reference file under `reference/` is loaded into context.
-4. The agent works within that single reference. No other domains are loaded unless you start a new request.
+4. The agent works within that single reference. No other references are loaded unless you start a new request.
 
 This keeps context tight and prevents cross-domain noise from diluting technique depth.
 
