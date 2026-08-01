@@ -1,4 +1,4 @@
 # superhacker
 
-@./SKILL.md
+@./skills/superhacker/SKILL.md
 

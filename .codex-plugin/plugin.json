@@ -15,7 +15,7 @@
     "claude-code",
     "codex"
   ],
-  "skills": "./",
+  "skills": "./skills/",
   "interface": {
     "displayName": "Superhacker",
     "shortDescription": "Authorized-security router for scoped security work. Use for /superhacker, pente",
