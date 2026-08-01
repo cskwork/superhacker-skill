@@ -1,0 +1,21 @@
+{
+  "name": "superhacker",
+  "interface": {
+    "displayName": "Superhacker"
+  },
+  "plugins": [
+    {
+      "name": "superhacker",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/cskwork/superhacker-skill.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -6,7 +6,7 @@
 ### Install
 
 ```bash
-claude plugin marketplace add cskwork/superhacker
+claude plugin marketplace add cskwork/superhacker-skill
 claude plugin install superhacker@superhacker
 ```
 
@@ -39,7 +39,7 @@ claude plugin marketplace remove superhacker
 ### Install
 
 ```bash
-codex plugin marketplace add cskwork/superhacker --ref main
+codex plugin marketplace add cskwork/superhacker-skill --ref main
 codex plugin add superhacker@superhacker
 ```
 
@@ -66,14 +66,14 @@ codex plugin marketplace remove superhacker
 ### Install (extension, always-on)
 
 ```bash
-gemini extensions install https://github.com/cskwork/superhacker
+gemini extensions install https://github.com/cskwork/superhacker-skill
 ```
 
 ### Install (command, opt-in)
 
 ```bash
 mkdir -p ~/.gemini/commands
-curl -fsSL https://raw.githubusercontent.com/cskwork/superhacker/main/skills/superhacker/agents/gemini.toml \
+curl -fsSL https://raw.githubusercontent.com/cskwork/superhacker-skill/main/skills/superhacker-skill/agents/gemini.toml \
   -o ~/.gemini/commands/superhacker.toml
 ```
 
@@ -99,8 +99,8 @@ gemini extensions uninstall superhacker
 ### Install
 
 ```bash
-npx skills add cskwork/superhacker
-npx skills add cskwork/superhacker -g
+npx skills add cskwork/superhacker-skill
+npx skills add cskwork/superhacker-skill -g
 ```
 
 Type `/superhacker` in a new agent chat.
@@ -131,7 +131,7 @@ npx skills remove superhacker
 ### Install
 
 ```bash
-agy plugin install https://github.com/cskwork/superhacker
+agy plugin install https://github.com/cskwork/superhacker-skill
 ```
 
 ### Verify

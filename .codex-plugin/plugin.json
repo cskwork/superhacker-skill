@@ -6,8 +6,8 @@
     "name": "cskwork",
     "url": "https://github.com/cskwork"
   },
-  "homepage": "https://github.com/cskwork/superhacker",
-  "repository": "https://github.com/cskwork/superhacker",
+  "homepage": "https://github.com/cskwork/superhacker-skill",
+  "repository": "https://github.com/cskwork/superhacker-skill",
   "license": "MIT",
   "keywords": [
     "superhacker",
@@ -25,7 +25,7 @@
     "capabilities": [
       "Instructions"
     ],
-    "websiteURL": "https://github.com/cskwork/superhacker",
+    "websiteURL": "https://github.com/cskwork/superhacker-skill",
     "defaultPrompt": [
       "Use superhacker for this task."
     ],
