@@ -1,0 +1,34 @@
+{
+  "name": "superhacker",
+  "version": "0.1.0",
+  "description": "Authorized-security router for scoped security work. Use for /superhacker, pentest/security audit, vulnerability search or clue triage, red team, cloud/IAM hardening, detection/IR/forensics/threat intel, mobile/compliance, or CTF.",
+  "author": {
+    "name": "cskwork",
+    "url": "https://github.com/cskwork"
+  },
+  "homepage": "https://github.com/cskwork/superhacker",
+  "repository": "https://github.com/cskwork/superhacker",
+  "license": "MIT",
+  "keywords": [
+    "superhacker",
+    "skill",
+    "claude-code",
+    "codex"
+  ],
+  "skills": "./",
+  "interface": {
+    "displayName": "Superhacker",
+    "shortDescription": "Authorized-security router for scoped security work. Use for /superhacker, pente",
+    "longDescription": "Authorized-security router for scoped security work. Use for /superhacker, pentest/security audit, vulnerability search or clue triage, red team, cloud/IAM hardening, detection/IR/forensics/threat intel, mobile/compliance, or CTF.",
+    "developerName": "cskwork",
+    "category": "Productivity",
+    "capabilities": [
+      "Instructions"
+    ],
+    "websiteURL": "https://github.com/cskwork/superhacker",
+    "defaultPrompt": [
+      "Use superhacker for this task."
+    ],
+    "brandColor": "#2563EB"
+  }
+}
