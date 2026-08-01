@@ -1,14 +1,14 @@
 {
   "$schema": "https://www.schemastore.org/claude-code-marketplace.json",
   "name": "superhacker",
-  "description": "Authorized-security router for scoped security work. Use for /superhacker, pentest/security audit, vulnerability search ",
+  "description": "Authorized-security router. Use for /superhacker, pentest, vulnerability triage, red team, hardening, or CTF.",
   "owner": {
     "name": "cskwork"
   },
   "plugins": [
     {
       "name": "superhacker",
-      "description": "Authorized-security router for scoped security work. Use for /superhacker, pentest/security audit, vulnerability search ",
+      "description": "Authorized-security router. Use for /superhacker, pentest, vulnerability triage, red team, hardening, or CTF.",
       "source": "./",
       "category": "productivity"
     }

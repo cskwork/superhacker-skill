@@ -1,6 +1,6 @@
 {
   "name": "superhacker",
   "version": "0.1.0",
-  "description": "Authorized-security router for scoped security work. Use for /superhacker, pentest/security audit, vulnerability search...",
+  "description": "Authorized-security router. Use for /superhacker, pentest, vulnerability triage, red team, hardening, or CTF.",
   "contextFileName": "GEMINI.md"
 }

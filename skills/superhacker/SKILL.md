@@ -1,6 +1,6 @@
 ---
 name: superhacker
-description: Authorized-security router for scoped security work. Use for /superhacker, pentest/security audit, vulnerability search or clue triage, red team, cloud/IAM hardening, detection/IR/forensics/threat intel, mobile/compliance, or CTF.
+description: Authorized-security router. Use for /superhacker, pentest, vulnerability triage, red team, hardening, or CTF.
 ---
 
 # /superhacker - authorized-security routing
