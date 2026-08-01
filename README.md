@@ -1,3 +1,5 @@
+<p align="center"><img src="logo.png" width="120" alt="logo" /></p>
+
 # superhacker-skill
 
 A single-intent-routing security skill for Claude Code and compatible agents. One `SKILL.md` accepts a security objective and routes it to exactly one of 14 reference files: 13 security domain buckets plus one passive-first clue-hunt route. The design mirrors the supergoal-skill routing pattern: minimal ceremony, one load per invocation, no broad context dumping.
